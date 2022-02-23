@@ -14,10 +14,11 @@ namespace TodoService.Infrastructure.Repository
             _context = context;
         }
         
-        public async Task CreateAsync(T item)
+        public async Task<T> CreateAsync(T item)
         {
             await _context.Set<T>().AddAsync(item);
             await _context.SaveChangesAsync();
+            return item;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
@@ -25,7 +26,7 @@ namespace TodoService.Infrastructure.Repository
             return await _context.Set<T>().ToListAsync();
         }
 
-        public async Task<T> GetAsync(int id)
+        public async Task<T> GetAsync(long id)
         {
             return await _context.Set<T>().FindAsync(id);
         }

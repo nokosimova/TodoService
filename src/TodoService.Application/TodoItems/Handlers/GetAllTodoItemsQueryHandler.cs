@@ -1,6 +1,8 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using MediatR;
 using TodoService.Application.DTO;
 using TodoService.Application.TodoItems.Queries;
@@ -9,7 +11,7 @@ using TodoService.Infrastructure.Repository;
 
 namespace TodoService.Application.TodoItems.Handlers
 {
-    public class GetAllTodoItemsQueryHandler: IRequestHandler<GetAllTodoItemsQuery, IEnumerable<TodoItemDTO>>
+    public class GetAllTodoItemsQueryHandler: IRequestHandler<GetAllTodoItemsQuery, IEnumerable<TodoItem>>
     {
         private readonly IRepository<TodoItem> _repository;
 
@@ -18,9 +20,9 @@ namespace TodoService.Application.TodoItems.Handlers
             _repository = repository;
         }
 
-        public Task<IEnumerable<TodoItemDTO>> Handle(GetAllTodoItemsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<TodoItem>> Handle(GetAllTodoItemsQuery request, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            return await _repository.GetAllAsync();
         }
     }
 }

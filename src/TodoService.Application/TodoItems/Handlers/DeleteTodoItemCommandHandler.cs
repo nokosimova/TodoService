@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using MediatR;
 using TodoService.Application.DTO;
 using TodoService.Application.TodoItems.Commands;
@@ -8,7 +9,7 @@ using TodoService.Infrastructure.Repository;
 
 namespace TodoService.Application.TodoItems.Handlers
 {
-    public class DeleteTodoItemCommandHandler :  IRequestHandler<DeleteTodoItemCommand>
+    public class DeleteTodoItemCommandHandler : IRequestHandler<DeleteTodoItemCommand>
     {
         private readonly IRepository<TodoItem> _repository;
 
@@ -17,10 +18,10 @@ namespace TodoService.Application.TodoItems.Handlers
             _repository = repository;
         }
 
-        public Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DeleteTodoItemCommand request, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            await _repository.DeleteAsync(request.Item);
+            return Unit.Value;
         }
     }
-    
 }

@@ -1,10 +1,10 @@
 using MediatR;
-using TodoService.Application.DTO;
+using TodoService.Domain.Entities;
 
 namespace TodoService.Application.TodoItems.Commands
 {
     public class DeleteTodoItemCommand : IRequest
     {
-        public TodoItemDTO Item { get; set; }
+        public TodoItem Item { get; set; }
     }
 }

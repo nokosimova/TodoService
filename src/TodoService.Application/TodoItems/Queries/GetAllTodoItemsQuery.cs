@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using MediatR;
-using TodoService.Application.DTO;
+using TodoService.Domain.Entities;
 
 namespace TodoService.Application.TodoItems.Queries
 {
-    public class GetAllTodoItemsQuery : IRequest<IEnumerable<TodoItemDTO>>
+    public class GetAllTodoItemsQuery : IRequest<IEnumerable<TodoItem>>
     {
     }
 }
