@@ -1,9 +1,15 @@
+using System;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;
+using System.Data.Common;
 using System.Threading.Tasks;
-using TodoService.Api.Models;
+using AutoMapper;
+using MediatR;
+using TodoService.Application.DTO;
+using TodoService.Application.TodoItems.Commands;
+using TodoService.Application.TodoItems.Queries;
+using TodoService.Domain.Entities;
+using TodoService.Infrastructure.Persistense;
 
 namespace TodoService.Api.Controllers
 {
@@ -11,11 +17,13 @@ namespace TodoService.Api.Controllers
     [ApiController]
     public class TodoItemsController : ControllerBase
     {
-        private readonly TodoContext _context;
+        private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
 
-        public TodoItemsController(TodoContext context)
+        public TodoItemsController(IMediator mediator, IMapper mapper)
         {
-            _context = context;
+            _mediator = mediator;
+            _mapper = mapper;
         }
         
         /// <summary>
@@ -24,9 +32,8 @@ namespace TodoService.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
-            return await _context.TodoItems
-                .Select(x => ItemToDTO(x))
-                .ToListAsync();
+            var result = await _mediator.Send(new GetAllTodoItemsQuery());
+            return Ok(_mapper.Map<IEnumerable<TodoItemDTO>>(result));
         }
         
         /// <summary>
@@ -36,14 +43,14 @@ namespace TodoService.Api.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
         {
-            var todoItem = await _context.TodoItems.FindAsync(id);
-
+            var todoItem = await _mediator.Send(new GetTodoItemQuery(){Id = id});
+            
             if (todoItem == null)
             {
                 return NotFound();
             }
-
-            return ItemToDTO(todoItem);
+            
+            return Ok(_mapper.Map<TodoItemDTO>(todoItem));
         }
 
         /// <summary>
@@ -58,25 +65,26 @@ namespace TodoService.Api.Controllers
             {
                 return BadRequest();
             }
-
-            var todoItem = await _context.TodoItems.FindAsync(id);
+            
+            var todoItem = await _mediator.Send(new GetTodoItemQuery(){Id = id});
             if (todoItem == null)
             {
                 return NotFound();
             }
-
-            todoItem.Name = todoItemDTO.Name;
-            todoItem.IsComplete = todoItemDTO.IsComplete;
-
+            
             try
             {
-                await _context.SaveChangesAsync();
+                await _mediator.Send(new UpdateTodoItemCommand()
+                {
+                    Item = todoItem,
+                    UpdatedItem = todoItemDTO
+                });
             }
-            catch (DbUpdateConcurrencyException) when (!TodoItemExists(id))
+            catch (DbException ex)
             {
-                return NotFound();
+                if (await _mediator.Send(new GetTodoItemQuery(){Id = id}) == null)
+                    return NotFound();
             }
-
             return NoContent();
         }
 
@@ -86,19 +94,10 @@ namespace TodoService.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItemDTO>> CreateTodoItem(TodoItemDTO todoItemDTO)
         {
-            var todoItem = new TodoItem
-            {
-                IsComplete = todoItemDTO.IsComplete,
-                Name = todoItemDTO.Name
-            };
-
-            _context.TodoItems.Add(todoItem);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(
-                nameof(GetTodoItem),
-                new { id = todoItem.Id },
-                ItemToDTO(todoItem));
+            var entity = _mapper.Map<TodoItem>(todoItemDTO);
+            var result = await _mediator.Send(new CreateTodoItemCommand() { Item = entity });
+            
+            return Ok(_mapper.Map<TodoItemDTO>(result));
         }
 
         /// <summary>
@@ -107,28 +106,16 @@ namespace TodoService.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoItem(long id)
         {
-            var todoItem = await _context.TodoItems.FindAsync(id);
-
+            var todoItem = await _mediator.Send(new GetTodoItemQuery() {Id = id});
+            
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            await _mediator.Send(new DeleteTodoItemCommand(){ Item =  todoItem});
 
             return NoContent();
         }
-
-        private bool TodoItemExists(long id) =>
-             _context.TodoItems.Any(e => e.Id == id);
-
-        private static TodoItemDTO ItemToDTO(TodoItem todoItem) =>
-            new TodoItemDTO
-            {
-                Id = todoItem.Id,
-                Name = todoItem.Name,
-                IsComplete = todoItem.IsComplete
-            };       
     }
 }
