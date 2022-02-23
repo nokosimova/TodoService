@@ -23,5 +23,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TodoService.Domain\TodoService.Domain.csproj" />
+    <ProjectReference Include="..\TodoService.Infrastructure\TodoService.Infrastructure.csproj" />
+  </ItemGroup>
+
 
 </Project>
