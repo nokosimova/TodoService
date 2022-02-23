@@ -17,7 +17,10 @@ namespace TodoService.Api.Controllers
         {
             _context = context;
         }
-
+        
+        /// <summary>
+        /// Get all Todo Items
+        /// </summary>
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
@@ -25,7 +28,11 @@ namespace TodoService.Api.Controllers
                 .Select(x => ItemToDTO(x))
                 .ToListAsync();
         }
-
+        
+        /// <summary>
+        /// Get certain item by id.
+        /// </summary>
+        /// <param name="id"></param>       
         [HttpGet("{id}")]
         public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
         {
@@ -39,6 +46,11 @@ namespace TodoService.Api.Controllers
             return ItemToDTO(todoItem);
         }
 
+        /// <summary>
+        /// Update Todo Item.
+        /// </summary>
+        /// <response code="400">If id doesn't equal to item id</response>
+        /// <response code="404">Doesn't find object with such id to update</response>
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTodoItem(long id, TodoItemDTO todoItemDTO)
         {
@@ -68,6 +80,9 @@ namespace TodoService.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Creates new Todo Item
+        /// </summary>
         [HttpPost]
         public async Task<ActionResult<TodoItemDTO>> CreateTodoItem(TodoItemDTO todoItemDTO)
         {
@@ -86,6 +101,9 @@ namespace TodoService.Api.Controllers
                 ItemToDTO(todoItem));
         }
 
+        /// <summary>
+        /// Delete Todo Item by id.
+        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTodoItem(long id)
         {
