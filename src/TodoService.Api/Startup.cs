@@ -13,10 +13,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using TodoService.Api.Models;
+using TodoService.Application.Extentions;
 using TodoService.Infrastructure.Persistense;
+using TodoService.Infrastructure.Repository;
 
 namespace TodoService.Api
 {
@@ -43,8 +43,9 @@ namespace TodoService.Api
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
             });
-            services.AddAutoMapper(typeof(Startup));
-            services.AddMediatR(typeof(Startup));
+            services.AddScoped(typeof(IRepository<>), typeof(GenericRepository<>));
+            
+            services.AddApplication();
             services.AddControllers();
         }
 

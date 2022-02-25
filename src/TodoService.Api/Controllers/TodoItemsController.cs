@@ -27,6 +27,18 @@ namespace TodoService.Api.Controllers
         }
         
         /// <summary>
+        /// Creates new Todo Item
+        /// </summary>
+        [HttpPost]
+        public async Task<ActionResult<TodoItemDTO>> CreateTodoItem(TodoItemDTO todoItemDTO)
+        {
+            var entity = _mapper.Map<TodoItemDTO, TodoItem>(todoItemDTO);
+            var result = await _mediator.Send(new CreateTodoItemCommand() { Item = entity });
+            
+            return Ok(_mapper.Map<TodoItemDTO>(result));
+        }
+
+        /// <summary>
         /// Get all Todo Items
         /// </summary>
         [HttpGet]
@@ -88,19 +100,7 @@ namespace TodoService.Api.Controllers
             return NoContent();
         }
 
-        /// <summary>
-        /// Creates new Todo Item
-        /// </summary>
-        [HttpPost]
-        public async Task<ActionResult<TodoItemDTO>> CreateTodoItem(TodoItemDTO todoItemDTO)
-        {
-            var entity = _mapper.Map<TodoItem>(todoItemDTO);
-            var result = await _mediator.Send(new CreateTodoItemCommand() { Item = entity });
-            
-            return Ok(_mapper.Map<TodoItemDTO>(result));
-        }
-
-        /// <summary>
+       /// <summary>
         /// Delete Todo Item by id.
         /// </summary>
         [HttpDelete("{id}")]
