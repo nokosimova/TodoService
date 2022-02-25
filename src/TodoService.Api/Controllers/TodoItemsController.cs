@@ -32,10 +32,13 @@ namespace TodoService.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<TodoItemDTO>> CreateTodoItem(TodoItemDTO todoItemDTO)
         {
+            if (todoItemDTO.Name == null)
+                return BadRequest();
+            
             var entity = _mapper.Map<TodoItemDTO, TodoItem>(todoItemDTO);
             var result = await _mediator.Send(new CreateTodoItemCommand() { Item = entity });
             
-            return Ok(_mapper.Map<TodoItemDTO>(result));
+            return Ok(_mapper.Map<TodoItem, TodoItemDTO>(result));
         }
 
         /// <summary>
@@ -45,7 +48,7 @@ namespace TodoService.Api.Controllers
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
             var result = await _mediator.Send(new GetAllTodoItemsQuery());
-            return Ok(_mapper.Map<IEnumerable<TodoItemDTO>>(result));
+            return Ok(_mapper.Map<IEnumerable<TodoItem>, IEnumerable<TodoItemDTO>>(result));
         }
         
         /// <summary>
@@ -53,7 +56,7 @@ namespace TodoService.Api.Controllers
         /// </summary>
         /// <param name="id"></param>       
         [HttpGet("{id}")]
-        public async Task<ActionResult<TodoItemDTO>> GetTodoItem(long id)
+        public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
         {
             var todoItem = await _mediator.Send(new GetTodoItemQuery(){Id = id});
             
@@ -62,7 +65,7 @@ namespace TodoService.Api.Controllers
                 return NotFound();
             }
             
-            return Ok(_mapper.Map<TodoItemDTO>(todoItem));
+            return Ok(todoItem);
         }
 
         /// <summary>
