@@ -30,6 +30,8 @@ namespace TodoService.Api.Controllers
         /// Creates new Todo Item
         /// </summary>
         [HttpPost]
+        [ProducesResponseType(typeof(TodoItemDTO), 200)]
+        [ProducesResponseType(400)]
         public async Task<ActionResult<TodoItemDTO>> CreateTodoItem(TodoItemDTO todoItemDTO)
         {
             if (todoItemDTO.Name == null)
@@ -45,6 +47,7 @@ namespace TodoService.Api.Controllers
         /// Get all Todo Items
         /// </summary>
         [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<TodoItemDTO>), 200)]
         public async Task<ActionResult<IEnumerable<TodoItemDTO>>> GetTodoItems()
         {
             var result = await _mediator.Send(new GetAllTodoItemsQuery());
@@ -56,6 +59,8 @@ namespace TodoService.Api.Controllers
         /// </summary>
         /// <param name="id"></param>       
         [HttpGet("{id}")]
+        [ProducesResponseType(typeof(TodoItemDTO), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<TodoItem>> GetTodoItem(long id)
         {
             var todoItem = await _mediator.Send(new GetTodoItemQuery(){Id = id});
@@ -74,6 +79,9 @@ namespace TodoService.Api.Controllers
         /// <response code="400">If id doesn't equal to item id</response>
         /// <response code="404">Doesn't find object with such id to update</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateTodoItem(long id, TodoItemDTO todoItemDTO)
         {
             if (id != todoItemDTO.Id)
@@ -107,6 +115,9 @@ namespace TodoService.Api.Controllers
         /// Delete Todo Item by id.
         /// </summary>
         [HttpDelete("{id}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+       
         public async Task<IActionResult> DeleteTodoItem(long id)
         {
             var todoItem = await _mediator.Send(new GetTodoItemQuery() {Id = id});
